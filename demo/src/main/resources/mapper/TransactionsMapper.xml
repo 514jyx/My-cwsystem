@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.system.mapper.TransactionsMapper">
+
+    <!-- 分页搜索交易：selectTransactionPage 修正版 -->
+    <select id="selectTransactionPage" resultType="com.example.demo.system.entity.Transactions">
+        SELECT
+        id,
+        trans_no AS transNo,        <!-- 映射实体类 transNo 字段 -->
+        trans_date AS transDate,    <!-- 映射实体类 transDate 字段 -->
+        trans_type AS transType,    <!-- 映射实体类 transType 字段 -->
+        description,                <!-- 映射实体类 description 字段 -->
+        status,                     <!-- 映射实体类 status 字段 -->
+        order_id AS orderId,        <!-- 映射实体类 orderId 字段 -->
+        created_at AS createdAt,    <!-- 映射实体类 createdAt 字段（自动填充） -->
+        updated_at AS updatedAt     <!-- 映射实体类 updatedAt 字段（自动填充） -->
+        FROM transactions
+        <where>
+            <!-- 交易编号模糊查询 -->
+            <if test="transNo != null and transNo != ''">
+                AND trans_no LIKE CONCAT('%', #{transNo}, '%')
+            </if>
+            <!-- 交易类型精确查询 -->
+            <if test="transType != null and transType != ''">
+                AND trans_type = #{transType}
+            </if>
+            <!-- 交易状态精确查询 -->
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <!-- 交易日期范围查询（修正：日期格式转换，避免字符串与date类型不匹配） -->
+            <if test="startDate != null and startDate != ''">
+                AND trans_date &gt;= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND trans_date &lt;= STR_TO_DATE(#{endDate}, '%Y-%m-%d')
+            </if>
+        </where>
+        ORDER BY trans_date DESC
+    </select>
+
+    <!-- 最近已过账交易：selectRecentTransactions 修正版 -->
+    <select id="selectRecentTransactions" resultType="com.example.demo.system.entity.Transactions">
+        SELECT
+        id,
+        trans_no AS transNo,        <!-- 映射实体类 transNo 字段 -->
+        trans_date AS transDate,    <!-- 映射实体类 transDate 字段 -->
+        trans_type AS transType,    <!-- 映射实体类 transType 字段 -->
+        description,                <!-- 映射实体类 description 字段 -->
+        status,                     <!-- 映射实体类 status 字段 -->
+        order_id AS orderId,        <!-- 映射实体类 orderId 字段 -->
+        created_at AS createdAt,    <!-- 映射实体类 createdAt 字段（自动填充） -->
+        updated_at AS updatedAt     <!-- 映射实体类 updatedAt 字段（自动填充） -->
+        FROM transactions
+        WHERE status = '已过账'
+        ORDER BY trans_date DESC
+        LIMIT #{limit}
+    </select>
+
+</mapper>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.system.mapper.ProductsMapper">
+
+    <!-- 基础结果集映射（与实体类字段对应，可复用） -->
+    <resultMap id="BaseResultMap" type="com.example.demo.system.entity.Products">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="category" property="category"/>
+        <result column="unit" property="unit"/>
+        <result column="cost_price" property="costPrice"/>
+        <result column="sale_price" property="salePrice"/>
+        <result column="stock" property="stock"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <!-- 分页+模糊查询 SQL -->
+    <select id="selectProductPage" resultMap="BaseResultMap">
+        SELECT id, name, category, unit, cost_price, sale_price, stock, created_at, updated_at
+        FROM products
+        <where>
+            <!-- 名称模糊查询：如果 name 不为 null，拼接 LIKE 条件 -->
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <!-- 分类模糊查询：如果 category 不为 null，拼接 LIKE 条件 -->
+            <if test="category != null and category != ''">
+                AND category LIKE CONCAT('%', #{category}, '%')
+            </if>
+        </where>
+        <!-- 按更新时间倒序（最新的商品排在前面） -->
+        ORDER BY updated_at DESC
+    </select>
+
+    <!-- 带条件构造器的分页查询（MyBatis-Plus 自动拼接条件，无需手动写 SQL） -->
+    <select id="selectProductPage" resultMap="BaseResultMap">
+        SELECT id, name, category, unit, cost_price, sale_price, stock, created_at, updated_at
+        FROM products
+        <where>
+            ${ew.customSqlSegment} <!-- 条件构造器自动生成的 SQL 片段 -->
+        </where>
+        ORDER BY updated_at DESC
+    </select>
+
+</mapper>

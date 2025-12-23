@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.system.mapper.EntriesMapper">
+
+    <!-- 批量插入分录（原有代码，保持不变） -->
+    <insert id="batchInsertEntries">
+        INSERT INTO entries (
+        transaction_id,
+        account_id,
+        entry_type,
+        amount,
+        description,
+        created_at
+        )
+        VALUES
+        <foreach collection="list" item="e" separator=",">
+            (
+            #{e.transactionId},
+            #{e.accountId},
+            #{e.entryType},
+            #{e.amount},
+            #{e.description},
+            NOW()
+            )
+        </foreach>
+    </insert>
+
+    <!-- 新增：查询交易关联的分录（关联科目表，返回code和name） -->
+    <select id="selectEntriesByTransactionId" resultType="java.util.Map">
+        SELECT
+            e.id,
+            e.transaction_id AS transactionId,
+            e.account_id AS accountId,
+            a.code AS accountCode, -- 科目代码（如1001）
+            a.name AS accountName, -- 科目名称（如库存现金）
+            e.entry_type AS entryType,
+            e.amount,
+            e.description,
+            e.created_at AS createdAt
+        FROM entries e
+                 LEFT JOIN accounts a ON e.account_id = a.id -- 关联科目表，获取code和name
+        WHERE e.transaction_id = #{transactionId}
+        ORDER BY e.id ASC
+    </select>
+
+    <!-- 新增：删除交易关联的所有分录（编辑凭证时用，原有逻辑可能已有，没有就加） -->
+    <delete id="deleteByTransactionId">
+        DELETE FROM entries WHERE transaction_id = #{transactionId}
+    </delete>
+
+</mapper>

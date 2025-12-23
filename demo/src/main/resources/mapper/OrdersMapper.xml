@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.system.mapper.OrdersMapper">
+
+    <!-- 1. 分页查询采购订单 -->
+    <select id="selectPurchaseOrderPage" resultType="com.example.demo.system.entity.Orders">
+        SELECT o.*, s.name AS supplierName
+        FROM orders o
+        LEFT JOIN suppliers s ON o.supplier_id = s.id
+        WHERE o.order_type = '采购'
+        <if test="orderNo != null and orderNo != ''">AND o.order_no LIKE CONCAT('%', #{orderNo}, '%')</if>
+        <if test="supplierId != null">AND o.supplier_id = #{supplierId}</if>
+        <if test="status != null and status != ''">AND o.status = #{status}</if>
+        <if test="startDate != null and startDate != ''">AND o.order_date >= STR_TO_DATE(#{startDate}, '%Y-%m-%d')</if>
+        <!-- 仅修改这一行：<= 改为 &lt;= -->
+        <if test="endDate != null and endDate != ''">AND o.order_date &lt;= STR_TO_DATE(#{endDate}, '%Y-%m-%d')</if>
+        ORDER BY o.created_at DESC
+    </select>
+
+    <!-- 2. 查询采购订单详情 -->
+    <select id="selectPurchaseOrderById" resultType="com.example.demo.system.entity.Orders">
+        SELECT o.*, s.name AS supplierName
+        FROM orders o
+                 LEFT JOIN suppliers s ON o.supplier_id = s.id
+        WHERE o.id = #{id} AND o.order_type = '采购'
+    </select>
+
+    <select id="selectSalesOrderPage" resultType="com.example.demo.system.entity.Orders">
+        SELECT o.*, c.name AS customerName <!-- 关联客户名称，和采购的supplierName对应 -->
+        FROM orders o
+        LEFT JOIN customers c ON o.customer_id = c.id <!-- 关联客户表 -->
+        WHERE o.order_type = '销售'
+        <if test="orderNo != null and orderNo != ''">AND o.order_no LIKE CONCAT('%', #{orderNo}, '%')</if>
+        <if test="customerId != null">AND o.customer_id = #{customerId}</if>
+        <if test="status != null and status != ''">AND o.status = #{status}</if>
+        <!-- 统一日期格式转换（和采购订单一致，避免日期格式不匹配） -->
+        <if test="startDate != null and startDate != ''">AND o.order_date >= STR_TO_DATE(#{startDate}, '%Y-%m-%d')</if>
+        <if test="endDate != null and endDate != ''">AND o.order_date &lt;= STR_TO_DATE(#{endDate}, '%Y-%m-%d')</if>
+        ORDER BY o.created_at DESC <!-- 和采购订单保持一致的排序字段 -->
+    </select>
+    <select id="selectSalesOrderById" resultType="com.example.demo.system.entity.Orders">
+        SELECT o.*, c.name AS customerName <!-- 关联客户名称，显示更友好 -->
+        FROM orders o
+        LEFT JOIN customers c ON o.customer_id = c.id <!-- 关联客户表 -->
+        WHERE o.id = #{id} AND o.order_type = '销售'
+    </select>
+
+</mapper>

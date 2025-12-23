@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.system.mapper.OrderItemsMapper">
+
+    <!-- resultType 改为 OrderItems 的全路径 -->
+    <select id="selectByOrderId" resultType="com.example.demo.system.entity.OrderItems">
+        SELECT * FROM order_items
+        WHERE order_id = #{orderId}
+        ORDER BY id ASC
+    </select>
+
+    <delete id="deleteByOrderId">
+        DELETE FROM order_items
+        WHERE order_id = #{orderId}
+    </delete>
+
+</mapper>

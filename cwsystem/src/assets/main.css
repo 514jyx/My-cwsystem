@@ -1,0 +1,39 @@
+@import './base.css';
+
+#app {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 !important;
+  font-weight: normal;
+  min-height: 100vh;
+}
+
+a,
+.green {
+  text-decoration: none;
+  color: hsla(160, 100%, 37%, 1);
+  transition: 0.4s;
+  padding: 3px;
+}
+
+@media (hover: hover) {
+  a:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    display: flex;
+    place-items: center;
+    margin: 0; /* 取消 body 的默认 margin */
+    padding: 0; /* 取消 body 的默认 padding */
+  }
+
+  #app {
+    display: grid;
+    grid-template-columns: 1fr; /* 改为 1 列（原 2 列会把布局分成两半，不适合后台） */
+    padding: 0 !important; /* 完全取消内边距 */
+    width: 100%; /* 占满屏幕宽度 */
+  }
+}
